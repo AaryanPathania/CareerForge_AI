@@ -1,0 +1,86 @@
+// ============================================================================
+// TYPOGRAPHY — CareerForge_AI
+// Consistent type hierarchy built on the token font stack.
+// Base element styles so existing markup (h1, p, etc.) picks this up
+// automatically with no class-name or JSX changes required.
+// ============================================================================
+
+@use "./_tokens.scss" as *;
+
+body {
+    font-family: var(--font-family-base);
+    color: var(--text-main);
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-family: var(--font-family-base);
+    color: var(--text-main);
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+// Display heading — hero / landing-page scale
+.text-display {
+    font-size: 3rem;
+    font-weight: 800;
+    line-height: 1.15;
+    letter-spacing: -0.02em;
+
+    @include tablet-up {
+        font-size: 3.5rem;
+    }
+}
+
+h1,
+.text-h1 {
+    font-size: 2.25rem;
+    letter-spacing: -0.01em;
+}
+
+h2,
+.text-h2 {
+    font-size: 1.5rem;
+}
+
+h3,
+.text-h3 {
+    font-size: 1.125rem;
+    font-weight: 600;
+}
+
+p,
+.text-body {
+    font-family: var(--font-family-base);
+    font-size: 1rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+}
+
+.text-small {
+    font-size: 0.875rem;
+    line-height: 1.5;
+    color: var(--text-secondary);
+}
+
+.text-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-muted);
+}
+
+.text-caption {
+    font-size: 0.75rem;
+    line-height: 1.4;
+    color: var(--text-muted);
+}
+
+.text-muted {
+    color: var(--text-muted);
+}

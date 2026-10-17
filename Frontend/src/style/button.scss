@@ -1,0 +1,74 @@
+// ============================================================================
+// BUTTONS — CareerForge_AI
+// Base ".button" class is kept exactly as-is (used today by Login/Register
+// as `className="button primary-button"`), restyled with design tokens.
+// ".secondary-button" and ".ghost-button" added for future use.
+// ============================================================================
+
+.button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-2);
+
+    border: none;
+    outline: none;
+    padding-inline: var(--space-6);
+    padding-block: var(--space-3);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+
+    font-family: var(--font-family-base);
+    font-size: 0.95rem;
+    font-weight: 600;
+
+    transition: transform var(--transition-fast),
+        opacity var(--transition-fast),
+        background-color var(--transition-fast),
+        border-color var(--transition-fast);
+
+    // ── Primary ──────────────────────────────────────────────────────────
+    &.primary-button {
+        background: var(--gradient-primary);
+        color: var(--text-main);
+        box-shadow: var(--shadow-card);
+
+        &:hover {
+            opacity: 0.92;
+        }
+    }
+
+    // ── Secondary ────────────────────────────────────────────────────────
+    &.secondary-button {
+        background-color: var(--bg-card);
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+
+        &:hover {
+            border-color: var(--border-hover);
+            background-color: var(--bg-secondary);
+        }
+    }
+
+    // ── Ghost ────────────────────────────────────────────────────────────
+    &.ghost-button {
+        background-color: transparent;
+        color: var(--text-secondary);
+        border: 1px solid transparent;
+
+        &:hover {
+            background-color: var(--bg-secondary);
+            color: var(--text-main);
+        }
+    }
+
+    &:active {
+        transform: scale(0.97);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+}

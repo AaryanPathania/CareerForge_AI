@@ -1,0 +1,30 @@
+// ============================================================================
+// CARD — CareerForge_AI
+// Reusable surface component for future dashboard / report pages.
+// Not yet applied to any existing page (Stage 1 = foundation only).
+// ============================================================================
+
+.card {
+    background-color: var(--bg-card);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-card);
+    padding: var(--space-6);
+
+    transition: border-color var(--transition-base),
+        background-color var(--transition-base),
+        transform var(--transition-base),
+        box-shadow var(--transition-base);
+
+    &--hover,
+    &.is-interactive {
+        cursor: pointer;
+
+        &:hover {
+            border-color: var(--border-hover);
+            background-color: var(--bg-secondary);
+            transform: translateY(-1px);
+            box-shadow: var(--shadow-card-hover);
+        }
+    }
+}

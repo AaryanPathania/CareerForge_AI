@@ -1,0 +1,230 @@
+@use "../style/_tokens.scss" as *;
+
+// ============================================================================
+// DASHBOARD PAGE
+// Uses existing global tokens/button/card classes only.
+// ============================================================================
+
+.dashboard-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-5) var(--space-16);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-8);
+}
+
+// ── Welcome ──────────────────────────────────────────────────────────────
+.dashboard-welcome {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+    justify-content: space-between;
+
+    @include tablet-up {
+        flex-direction: row;
+        align-items: center;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+        margin-bottom: var(--space-1);
+
+        @include tablet-up {
+            font-size: 1.75rem;
+        }
+    }
+
+    p {
+        font-size: 0.95rem;
+    }
+
+    &__cta {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        white-space: nowrap;
+        align-self: flex-start;
+
+        @include tablet-up {
+            align-self: center;
+        }
+    }
+}
+
+// ── Statistics ───────────────────────────────────────────────────────────
+.dashboard-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-4);
+
+    @include tablet-up {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}
+
+.stat-card {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-2);
+
+    &__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-sm);
+        background-color: var(--bg-secondary);
+        color: var(--color-bright-blue);
+    }
+
+    &__value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-main);
+    }
+
+    &__label {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+}
+
+// ── Recent Plans ─────────────────────────────────────────────────────────
+.dashboard-recent {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        h2 {
+            font-size: 1.15rem;
+        }
+    }
+
+    &__list {
+        list-style: none;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+    }
+}
+
+.recent-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-4);
+    cursor: pointer;
+    text-decoration: none;
+    color: inherit;
+
+    &__main h3 {
+        font-size: 1rem;
+        margin-bottom: var(--space-1);
+    }
+
+    &__meta {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+    }
+
+    &__side {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        flex-shrink: 0;
+        color: var(--color-accent-cyan);
+    }
+
+    &__score {
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+}
+
+// ── Empty / Error states ─────────────────────────────────────────────────
+.dashboard-empty,
+.dashboard-error {
+    text-align: center;
+    padding: var(--space-10) var(--space-6);
+
+    h3 {
+        font-size: 1.1rem;
+        margin-bottom: var(--space-2);
+    }
+
+    p {
+        max-width: 420px;
+        margin: 0 auto var(--space-5);
+    }
+}
+
+// ── Loading skeleton ─────────────────────────────────────────────────────
+.dashboard-skeleton {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+
+    &__row {
+        height: 64px;
+        border-radius: var(--radius-lg);
+        background: linear-gradient(90deg, var(--bg-card) 25%, var(--bg-secondary) 50%, var(--bg-card) 75%);
+        background-size: 200% 100%;
+        animation: dashboard-shimmer 1.4s ease-in-out infinite;
+    }
+}
+
+@keyframes dashboard-shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -200% 0;
+    }
+}
+
+// ── Quick Actions ────────────────────────────────────────────────────────
+.dashboard-quick-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--space-4);
+
+    @include tablet-up {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.quick-action {
+    display: flex;
+    align-items: center;
+    gap: var(--space-3);
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: 0.95rem;
+    font-weight: 600;
+
+    &__icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 36px;
+        height: 36px;
+        border-radius: var(--radius-sm);
+        background-color: var(--bg-secondary);
+        color: var(--color-bright-blue);
+        flex-shrink: 0;
+    }
+}
+
+.stat-card__note {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}

@@ -1,0 +1,19 @@
+
+# Protect secret environment files
+.env
+.env.*
+**/.env
+**/.env.*
+!.env.example
+!**/.env.example
+
+# Ignore installed packages
+node_modules/
+**/node_modules/
+
+# Ignore generated builds
+dist/
+**/dist/
+
+# Ignore logs
+*.log

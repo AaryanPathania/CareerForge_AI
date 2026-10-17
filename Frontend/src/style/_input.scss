@@ -1,0 +1,48 @@
+// ============================================================================
+// INPUTS — CareerForge_AI
+// Base element selectors so existing plain <input>/<textarea> markup
+// (e.g. Login/Register forms) picks up the dark theme automatically —
+// no class-name changes required. ".input" utility class also provided
+// for components that want to opt in explicitly.
+// ============================================================================
+
+@mixin field-base {
+    width: 100%;
+    font-family: var(--font-family-base);
+    font-size: 0.95rem;
+    color: var(--text-main);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding-inline: var(--space-4);
+    padding-block: var(--space-3);
+    outline: none;
+
+    transition: border-color var(--transition-base), box-shadow var(--transition-base);
+
+    &::placeholder {
+        color: var(--text-muted);
+    }
+
+    &:focus {
+        border-color: var(--color-primary-blue);
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+    }
+
+    &:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+}
+
+input,
+textarea,
+select,
+.input {
+    @include field-base;
+}
+
+textarea {
+    resize: vertical;
+    line-height: 1.5;
+}

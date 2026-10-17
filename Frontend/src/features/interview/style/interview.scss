@@ -1,0 +1,628 @@
+@use "../../../style/_tokens.scss" as *;
+
+// ============================================================================
+// INTERVIEW REPORT PAGE
+// Linear, responsive report layout. Uses only the existing global design
+// tokens plus the one approved semantic error color, used exclusively for
+// "high severity" / "needs improvement" states.
+// ============================================================================
+
+$color-error: #F87171;
+
+.interview-page {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: var(--space-8) var(--space-5) var(--space-16);
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-6);
+}
+
+// ── Loading / Error states ──────────────────────────────────────────────
+.interview-loading,
+.interview-error {
+    min-height: 60vh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: var(--space-4);
+    text-align: center;
+    padding: var(--space-8) var(--space-5);
+}
+
+.interview-loading {
+    color: var(--text-secondary);
+
+    &__spinner {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        border: 3px solid var(--border-color);
+        border-top-color: var(--color-bright-blue);
+        animation: interview-spin 0.8s linear infinite;
+    }
+}
+
+@keyframes interview-spin {
+    to { transform: rotate(360deg); }
+}
+
+.interview-error {
+    h2 {
+        font-size: 1.25rem;
+        margin-bottom: var(--space-1);
+    }
+
+    p {
+        max-width: 420px;
+        margin-bottom: var(--space-2);
+    }
+}
+
+// ── Header ───────────────────────────────────────────────────────────────
+.report-header {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+
+    &__back {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-2);
+        width: fit-content;
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+
+        &:hover {
+            color: var(--text-main);
+        }
+    }
+
+    h1 {
+        font-size: 1.6rem;
+
+        @include tablet-up {
+            font-size: 1.85rem;
+        }
+    }
+
+    &__meta {
+        font-size: 0.9rem;
+        color: var(--text-muted);
+    }
+
+    &__row {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-4);
+
+        @include tablet-up {
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-between;
+        }
+    }
+
+    &__cta {
+        align-self: flex-start;
+        white-space: nowrap;
+
+        @include tablet-up {
+            align-self: center;
+        }
+    }
+}
+
+// ── Match Score Hero ─────────────────────────────────────────────────────
+.match-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: var(--space-5);
+    text-align: center;
+
+    @include tablet-up {
+        flex-direction: row;
+        text-align: left;
+    }
+
+    &__ring {
+        --ring-color: var(--color-bright-blue);
+
+        position: relative;
+        width: 140px;
+        height: 140px;
+        flex-shrink: 0;
+        border-radius: 50%;
+        background: conic-gradient(var(--ring-color) calc(var(--pct) * 3.6deg), var(--bg-secondary) 0deg);
+
+        &--high { --ring-color: var(--color-accent-cyan); }
+        &--mid { --ring-color: var(--color-bright-blue); }
+        &--low { --ring-color: #{$color-error}; }
+    }
+
+    &__ring-inner {
+        position: absolute;
+        inset: 10px;
+        border-radius: 50%;
+        background-color: var(--bg-card);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    &__value {
+        font-size: 2rem;
+        font-weight: 800;
+        color: var(--text-main);
+    }
+
+    &__pct {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        margin-left: 2px;
+    }
+
+    &__label {
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+        color: var(--text-muted);
+        margin-bottom: var(--space-1);
+    }
+
+    &__status {
+        font-size: 1.1rem;
+        font-weight: 700;
+
+        &--high { color: var(--color-accent-cyan); }
+        &--mid { color: var(--color-bright-blue); }
+        &--low { color: $color-error; }
+    }
+}
+
+// ── Overview strip ───────────────────────────────────────────────────────
+.overview-strip {
+    padding: var(--space-3) var(--space-4);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    font-size: 0.88rem;
+    color: var(--text-secondary);
+
+    strong {
+        color: var(--text-main);
+    }
+}
+
+// ── Section Navigation ───────────────────────────────────────────────────
+// Deliberately NOT sticky — AuthenticatedLayout's navbar is already sticky
+// at the top, and stacking a second sticky bar risks overlap without
+// coupling this file to that navbar's exact height.
+.section-nav {
+    display: flex;
+    gap: var(--space-2);
+    overflow-x: auto;
+    padding-bottom: var(--space-1);
+
+    &::-webkit-scrollbar {
+        height: 4px;
+    }
+
+    &__link {
+        flex-shrink: 0;
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        text-decoration: none;
+        white-space: nowrap;
+        padding: var(--space-2) var(--space-4);
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--border-color);
+        background-color: var(--bg-secondary);
+        transition: color var(--transition-base), border-color var(--transition-base);
+
+        &:hover {
+            color: var(--text-main);
+            border-color: var(--border-hover);
+        }
+    }
+}
+
+// ── Report sections (shared card wrapper) ───────────────────────────────
+.report-section {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+
+    > h2 {
+        font-size: 1.1rem;
+    }
+}
+
+.content-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+
+    h2 {
+        font-size: 1.1rem;
+        margin: 0;
+    }
+
+    &__count {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        background-color: var(--bg-secondary);
+        padding: 0.15rem 0.6rem;
+        border-radius: var(--radius-xl);
+        border: 1px solid var(--border-color);
+        white-space: nowrap;
+    }
+}
+
+// ── Skill Gaps ───────────────────────────────────────────────────────────
+.skill-gaps__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+}
+
+.skill-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--space-3);
+    padding: var(--space-3) var(--space-4);
+    border-radius: var(--radius-sm);
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-left-width: 3px;
+
+    &--low { border-left-color: var(--color-accent-cyan); }
+    &--medium { border-left-color: var(--color-bright-blue); }
+    &--high { border-left-color: $color-error; }
+
+    &__name {
+        font-size: 0.9rem;
+        color: var(--text-main);
+        font-weight: 500;
+    }
+
+    &__severity {
+        font-size: 0.72rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.04em;
+        padding: 0.2rem 0.6rem;
+        border-radius: var(--radius-xl);
+        white-space: nowrap;
+
+        &--low {
+            color: var(--color-accent-cyan);
+            background-color: rgba(34, 211, 238, 0.12);
+        }
+
+        &--medium {
+            color: var(--color-bright-blue);
+            background-color: rgba(56, 189, 248, 0.12);
+        }
+
+        &--high {
+            color: $color-error;
+            background-color: rgba(248, 113, 113, 0.12);
+        }
+    }
+}
+.progress-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-4);
+}
+
+.progress-row {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+
+    &__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: var(--space-3);
+        font-size: 0.85rem;
+    }
+
+    &__label {
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    &__count {
+        color: var(--text-muted);
+        font-size: 0.8rem;
+        white-space: nowrap;
+    }
+
+    &__track {
+        width: 100%;
+        height: 8px;
+        border-radius: var(--radius-xl);
+        background-color: var(--bg-secondary);
+        overflow: hidden;
+    }
+
+    &__fill {
+        height: 100%;
+        border-radius: var(--radius-xl);
+        background: var(--gradient-primary);
+        transition: width 0.3s ease-in-out;
+    }
+}
+
+
+
+// ── Preparation Plan (timeline) ──────────────────────────────────────────
+.roadmap-list {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 20px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(to bottom, var(--color-bright-blue), rgba(37, 99, 235, 0.08));
+        border-radius: 1px;
+    }
+}
+
+.roadmap-day {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-2);
+    padding: var(--space-3) 0 var(--space-3) var(--space-10);
+    position: relative;
+
+    &::before {
+        content: '';
+        position: absolute;
+        left: 13px;
+        top: 1.05rem;
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        background-color: var(--bg-card);
+        border: 2px solid var(--color-bright-blue);
+    }
+
+    &__header {
+        display: flex;
+        align-items: center;
+        gap: var(--space-2);
+        flex-wrap: wrap;
+    }
+
+    &__badge {
+        font-size: 0.72rem;
+        font-weight: 700;
+        color: var(--color-bright-blue);
+        background-color: rgba(37, 99, 235, 0.1);
+        border: 1px solid rgba(37, 99, 235, 0.25);
+        padding: 0.1rem 0.6rem;
+        border-radius: var(--radius-xl);
+    }
+
+    &__focus {
+        margin: 0;
+        font-size: 0.95rem;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    &__tasks {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-2);
+
+        li {
+            display: flex;
+            align-items: flex-start;
+            gap: var(--space-2);
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+    }
+
+    &__bullet {
+        flex-shrink: 0;
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background-color: var(--text-muted);
+        margin-top: 8px;
+    }
+}
+
+// ── Question cards ───────────────────────────────────────────────────────
+.q-list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+}
+
+.q-card {
+    background-color: var(--bg-secondary);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+    transition: border-color var(--transition-base);
+
+    &:hover {
+        border-color: var(--border-hover);
+    }
+
+    &--practiced {
+        border-color: rgba(34, 211, 238, 0.35);
+    }
+
+    &__practiced-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--space-1);
+        flex-shrink: 0;
+        font-size: 0.68rem;
+        font-weight: 700;
+        color: var(--color-accent-cyan);
+        background-color: rgba(34, 211, 238, 0.1);
+        border: 1px solid rgba(34, 211, 238, 0.25);
+        border-radius: var(--radius-xl);
+        padding: 0.15rem 0.55rem;
+        margin-top: 2px;
+
+        svg {
+            width: 12px;
+            height: 12px;
+        }
+    }
+
+    &__practice-btn {
+        align-self: flex-start;
+    }
+
+    &__header {
+        width: 100%;
+        display: flex;
+        align-items: flex-start;
+        gap: var(--space-3);
+        padding: var(--space-3) var(--space-4);
+        cursor: pointer;
+        background: none;
+        border: none;
+        text-align: left;
+        font-family: var(--font-family-base);
+    }
+
+    &__index {
+        flex-shrink: 0;
+        font-size: 0.7rem;
+        font-weight: 700;
+        color: var(--color-bright-blue);
+        background-color: rgba(37, 99, 235, 0.1);
+        border: 1px solid rgba(37, 99, 235, 0.25);
+        border-radius: var(--radius-sm);
+        padding: 0.15rem 0.4rem;
+        margin-top: 2px;
+    }
+
+    &__question {
+        flex: 1;
+        margin: 0;
+        font-size: 0.92rem;
+        font-weight: 500;
+        color: var(--text-main);
+        line-height: 1.5;
+    }
+
+    &__chevron {
+        flex-shrink: 0;
+        color: var(--text-muted);
+        transition: transform var(--transition-base);
+        margin-top: 2px;
+
+        &--open {
+            transform: rotate(180deg);
+            color: var(--color-bright-blue);
+        }
+    }
+
+    &__body {
+        padding: 0 var(--space-4) var(--space-4);
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-3);
+        border-top: 1px solid var(--border-color);
+        padding-top: var(--space-3);
+
+        p {
+            margin: 0;
+            font-size: 0.85rem;
+            line-height: 1.6;
+        }
+    }
+
+    &__section {
+        display: flex;
+        flex-direction: column;
+        gap: var(--space-1);
+    }
+
+    &__tag {
+        font-size: 0.68rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 0.15rem 0.5rem;
+        border-radius: var(--radius-sm);
+        width: fit-content;
+
+        &--intention {
+            color: var(--color-accent-cyan);
+            background-color: rgba(34, 211, 238, 0.1);
+            border: 1px solid rgba(34, 211, 238, 0.25);
+        }
+
+        &--answer {
+            color: var(--color-bright-blue);
+            background-color: rgba(37, 99, 235, 0.1);
+            border: 1px solid rgba(37, 99, 235, 0.25);
+        }
+    }
+}
+
+// ── Action bar ───────────────────────────────────────────────────────────
+.action-bar {
+    display: flex;
+    flex-direction: column;
+    gap: var(--space-3);
+
+    @include tablet-up {
+        flex-direction: row;
+    }
+
+    .button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--space-2);
+        width: 100%;
+
+        @include tablet-up {
+            width: auto;
+        }
+    }
+}
+
+// ── Responsive ───────────────────────────────────────────────────────────
+// .section-nav already handles small screens via horizontal scroll (overflow-x).
+// No page-specific breakpoint overrides needed beyond what each component
+// already defines above.
+
+.practice-error {
+    font-size: 0.88rem;
+    color: #F87171;
+    margin-top: var(--space-3);
+    scroll-margin-bottom: var(--space-6);
+}

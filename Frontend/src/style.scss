@@ -1,0 +1,56 @@
+// ============================================================================
+// GLOBAL STYLESHEET — CareerForge_AI
+// Imports the design-system foundation (tokens, typography, buttons,
+// cards, inputs), then applies the global reset + base page styles.
+// ============================================================================
+
+@use "./style/_tokens.scss" as *;
+@use "./style/_typography.scss";
+@use "./style/button.scss";
+@use "./style/_card.scss";
+@use "./style/_input.scss";
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+    width: 100%;
+    min-height: 100vh;
+    background-color: var(--bg-primary);
+    color: var(--text-main);
+    font-family: var(--font-family-base);
+}
+
+// Global subtle dark scrollbar
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--bg-card);
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--bg-primary);
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--border-hover);
+}
+
+* {
+    scrollbar-width: thin;
+    scrollbar-color: var(--bg-card) var(--bg-primary);
+}
+
+.highlight {
+    color: var(--color-bright-blue);
+}

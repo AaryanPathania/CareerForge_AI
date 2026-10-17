@@ -1,0 +1,79 @@
+// ============================================================================
+// DESIGN TOKENS — CareerForge_AI
+// Palette: Modern Dark Blue
+// These are the single source of truth for the global design system.
+// Consumed as CSS custom properties (runtime-flexible) + a few SCSS
+// variables for things SCSS needs at compile time (breakpoints).
+// ============================================================================
+
+:root {
+    // ── Backgrounds ──────────────────────────────────────────────────────
+    --bg-primary: #06111F;
+    --bg-secondary: #0A1628;
+    --bg-card: #0D1B2E;
+
+    // ── Brand / Accent Colors ────────────────────────────────────────────
+    --color-primary-blue: #2563EB;
+    --color-bright-blue: #38BDF8;
+    --color-accent-cyan: #22D3EE;
+
+    // ── Text ─────────────────────────────────────────────────────────────
+    --text-main: #F8FAFC;
+    --text-secondary: #94A3B8;
+    --text-muted: #64748B;
+
+    // ── Borders ──────────────────────────────────────────────────────────
+    --border-color: rgba(255, 255, 255, 0.08);
+    --border-hover: rgba(37, 99, 235, 0.35);
+
+    // ── Gradient ─────────────────────────────────────────────────────────
+    --gradient-primary: linear-gradient(135deg, #2563EB, #38BDF8);
+
+    // ── Typography ───────────────────────────────────────────────────────
+    --font-family-base: 'Inter', system-ui, -apple-system, BlinkMacSystemFont,
+        'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Helvetica Neue', sans-serif;
+
+    // ── Spacing Scale ────────────────────────────────────────────────────
+    --space-1: 4px;
+    --space-2: 8px;
+    --space-3: 12px;
+    --space-4: 16px;
+    --space-5: 20px;
+    --space-6: 24px;
+    --space-8: 32px;
+    --space-10: 40px;
+    --space-16: 64px;
+    --space-20: 80px;
+
+    // ── Border Radius ────────────────────────────────────────────────────
+    --radius-sm: 8px;
+    --radius-md: 12px;
+    --radius-lg: 16px;
+    --radius-xl: 20px;
+
+    // ── Shadows ──────────────────────────────────────────────────────────
+    --shadow-card: 0 10px 30px rgba(0, 0, 0, 0.25);
+    --shadow-card-hover: 0 14px 34px rgba(0, 0, 0, 0.32);
+
+    // ── Transitions ──────────────────────────────────────────────────────
+    --transition-fast: 0.15s ease-in-out;
+    --transition-base: 0.2s ease-in-out;
+}
+
+// ── Breakpoints ──────────────────────────────────────────────────────────
+// SCSS variables (media queries can't read CSS custom properties directly).
+// Mobile-first: base styles = mobile, then scale up.
+$bp-tablet: 768px;
+$bp-desktop: 1024px;
+
+@mixin tablet-up {
+    @media (min-width: $bp-tablet) {
+        @content;
+    }
+}
+
+@mixin desktop-up {
+    @media (min-width: $bp-desktop) {
+        @content;
+    }
+}
