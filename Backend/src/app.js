@@ -13,24 +13,20 @@ const allowedOrigins = [
 ];
 
 // Middleware
+app.use(cors({
+    origin: function (origin, callback) {
+        // Allow requests without an Origin header, such as server-to-server requests
+        if (!origin || allowedOrigins.includes(origin)) {
+            return callback(null, true);
+        }
+
+        return callback(new Error("Origin not allowed by CORS"));
+    },
+    credentials: true
+}));
+
 app.use(express.json());
 app.use(cookieParser());
-
-// CORS configuration
-app.use(
-    cors({
-        origin: function (origin, callback) {
-            // Allow requests without an Origin header, such as server-to-server
-            // requests and certain development tools.
-            if (!origin || allowedOrigins.includes(origin)) {
-                return callback(null, true);
-            }
-
-            return callback(new Error("Origin not allowed by CORS"));
-        },
-        credentials: true
-    })
-);
 
 // Import routes
 const authRouter = require("./routes/auth.routes");
@@ -44,7 +40,7 @@ app.use("/api/interview", interviewRouter);
 app.use("/api/resumes", resumeRouter);
 app.use("/api/users", userRouter);
 
-// Global error handler — keep this last
+// Global error handler — must be registered last
 app.use((err, req, res, next) => {
     console.error(err);
 
