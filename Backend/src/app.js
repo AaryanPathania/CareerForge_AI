@@ -1,57 +1,80 @@
-const express = require("express")
-const cookieParser = require("cookie-parser")
-const cors = require("cors")
-const multer = require("multer")
 
-const app = express()
+const express = require("express");
+const cookieParser = require("cookie-parser");
+const cors = require("cors");
+const multer = require("multer");
 
-app.use(express.json())
-app.use(cookieParser())
-app.use(cors({
-    origin: "http://localhost:5173",
-    credentials: true
-}))
+const app = express();
 
-/* require all the routes here */
-const authRouter = require("./routes/auth.routes")
-const interviewRouter = require("./routes/interview.routes")
-const resumeRouter = require("./routes/resume.routes")
-const userRouter = require("./routes/user.routes")
+// Allowed frontend origins
+const allowedOrigins = [
+    "http://localhost:5173",
+    "https://career-forge-ai-olive.vercel.app"
+];
 
+// Middleware
+app.use(express.json());
+app.use(cookieParser());
 
-/* using all the routes here */
-app.use("/api/auth", authRouter)
-app.use("/api/interview", interviewRouter)
-app.use("/api/resumes", resumeRouter)
-app.use("/api/users", userRouter)
+// CORS configuration
+app.use(
+    cors({
+        origin: function (origin, callback) {
+            // Allow requests without an Origin header, such as server-to-server
+            // requests and certain development tools.
+            if (!origin || allowedOrigins.includes(origin)) {
+                return callback(null, true);
+            }
 
+            return callback(new Error("Origin not allowed by CORS"));
+        },
+        credentials: true
+    })
+);
 
-/* global error handler — must be registered last.
-   Returns a clean JSON error response instead of exposing raw
-   errors/stack traces, and specifically handles Multer upload errors. */
+// Import routes
+const authRouter = require("./routes/auth.routes");
+const interviewRouter = require("./routes/interview.routes");
+const resumeRouter = require("./routes/resume.routes");
+const userRouter = require("./routes/user.routes");
+
+// Register routes
+app.use("/api/auth", authRouter);
+app.use("/api/interview", interviewRouter);
+app.use("/api/resumes", resumeRouter);
+app.use("/api/users", userRouter);
+
+// Global error handler — keep this last
 app.use((err, req, res, next) => {
-    console.error(err)
+    console.error(err);
 
     if (err instanceof multer.MulterError) {
         if (err.code === "LIMIT_FILE_SIZE") {
-            return res.status(400).json({ message: "File is too large. Maximum size is 3 MB." })
+            return res.status(400).json({
+                message: "File is too large. Maximum size is 3 MB."
+            });
         }
-        return res.status(400).json({ message: "File upload failed. Please check the file and try again." })
+
+        return res.status(400).json({
+            message: "File upload failed. Please check the file and try again."
+        });
     }
 
     if (err.name === "ValidationError") {
-        return res.status(400).json({ message: "Invalid data provided." })
+        return res.status(400).json({
+            message: "Invalid data provided."
+        });
     }
 
-    // Only trust err.message for errors we deliberately threw with an
-    // explicit safe status (e.g. AI-response validation failures).
-    // Anything else falls back to a generic message so internal details
-    // are never exposed to the client.
     if (err.status) {
-        return res.status(err.status).json({ message: err.message })
+        return res.status(err.status).json({
+            message: err.message
+        });
     }
 
-    res.status(500).json({ message: "Something went wrong. Please try again." })
-})
+    res.status(500).json({
+        message: "Something went wrong. Please try again."
+    });
+});
 
-module.exports = app
+module.exports = app;
