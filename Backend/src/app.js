@@ -26,14 +26,21 @@ app.use(
   })
 );
 
+// Parse incoming request data
 app.use(express.json());
 app.use(cookieParser());
 
-// API routes
-const authRouter = require("./routes/auth.routes");
-const interviewRouter = require("./routes/interview.routes");
-const resumeRouter = require("./routes/resume.routes");
-const userRouter = require("./routes/user.routes");
+// Temporary request logging for Render diagnostics.
+// This logs requests that reach Express, not passwords or request bodies.
+app.use((req, res, next) => {
+  console.log(
+    `[REQUEST] ${req.method} ${req.originalUrl} | CF-Ray: ${
+      req.headers["cf-ray"] || "not available"
+    }`
+  );
+
+  next();
+});
 
 // Health-check route
 app.get("/", (req, res) => {
@@ -42,7 +49,13 @@ app.get("/", (req, res) => {
   });
 });
 
-// Register API endpoints
+// API routes
+const authRouter = require("./routes/auth.routes");
+const interviewRouter = require("./routes/interview.routes");
+const resumeRouter = require("./routes/resume.routes");
+const userRouter = require("./routes/user.routes");
+
+// Register endpoints
 app.use("/api/auth", authRouter);
 app.use("/api/interview", interviewRouter);
 app.use("/api/resumes", resumeRouter);
@@ -50,7 +63,7 @@ app.use("/api/users", userRouter);
 
 // Global error handler
 app.use((err, req, res, next) => {
-  console.error(err);
+  console.error("[ERROR]", err);
 
   if (err instanceof multer.MulterError) {
     if (err.code === "LIMIT_FILE_SIZE") {
