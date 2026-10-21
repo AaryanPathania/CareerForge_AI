@@ -124,147 +124,158 @@ function buildResumeContentSchema(strict) {
 const resumeContentSchema = buildResumeContentSchema(true)
 const resumeAiResponseSchema = buildResumeContentSchema(false)
 
+
 async function generatePdfFromHtml(htmlContent) {
-    const browser = await puppeteer.launch()
-    const page = await browser.newPage()
+    let browser;
 
-    // A4 at 96 DPI (210mm x 297mm), used so the on-screen box model used for
-    // the shrink-to-fit measurement below matches the printed A4 page.
-    await page.setViewport({ width: 794, height: 1123 })
-    await page.setContent(htmlContent, { waitUntil: "networkidle0" })
+    try {
+        browser = await puppeteer.launch({
+            headless: true,
+            args: ["--no-sandbox", "--disable-setuid-sandbox"]
+        });
 
-    // Fit-to-page: adjust the resume's font/spacing scale (together, via a
-    // single CSS custom property) so the content fills roughly 85-92% of the
-    // A4 page height.
-    //   - content too short      -> scale UP (capped at MAX_SCALE)
-    //   - content near target    -> leave as-is
-    //   - content too long       -> scale DOWN (floored at MIN_SCALE)
-    // If it still overflows at the readable floor, let it flow onto a second
-    // page rather than clipping it or shrinking to an unreadable size.
-    await page.evaluate(() => {
-        const pageEl = document.querySelector(".resume-page")
-        const root = document.documentElement
+        const page = await browser.newPage();
 
-        if (!pageEl) return
+        await page.setViewport({ width: 794, height: 1123 });
 
-        const MIN_SCALE = 0.78 // 12px base * 0.78 ≈ 9.4px minimum body text
-        const MAX_SCALE = 1.25 // 12px base * 1.25 = 15px (11.25pt) maximum body text
-        // Fractions of the usable height (page height minus its padding).
-        // 0.92 of usable height ≈ 88% of the full A4 page.
-        const TARGET_MIN = 0.89
-        const TARGET_MAX = 0.94
-        const TARGET = 0.92
+        await page.setContent(htmlContent, {
+            waitUntil: "networkidle0"
+        });
 
-        const style = getComputedStyle(pageEl)
-        const usableHeight = pageEl.clientHeight
-            - parseFloat(style.paddingTop)
-            - parseFloat(style.paddingBottom)
+        await page.evaluate(() => {
+            const pageEl = document.querySelector(".resume-page");
+            const root = document.documentElement;
 
-        const MAX_SPACE = 3 // spacing may grow up to 3x — spacing only, never font size
+            if (!pageEl) return;
 
-        const setScale = (value) => root.style.setProperty("--resume-scale", value)
-        const setSpace = (value) => root.style.setProperty("--resume-space", value)
+            const MIN_SCALE = 0.78;
+            const MAX_SCALE = 1.25;
+            const TARGET = 0.92;
+            const MIN_TARGET = 0.89;
+            const MAX_SPACE = 3;
 
-        // Height the content actually occupies (excluding page padding), as a
-        // fraction of the usable A4 height.
-        const fillRatio = () => {
-            const last = pageEl.lastElementChild
-            if (!last) return 0
-            const used = last.getBoundingClientRect().bottom
-                - pageEl.getBoundingClientRect().top
-                - parseFloat(style.paddingTop)
-            return used / usableHeight
-        }
+            const style = getComputedStyle(pageEl);
+            const usableHeight =
+                pageEl.clientHeight -
+                parseFloat(style.paddingTop) -
+                parseFloat(style.paddingBottom);
 
-        const overflows = () => pageEl.scrollHeight > pageEl.clientHeight + 1
+            const setScale = value =>
+                root.style.setProperty("--resume-scale", value);
 
-        // Spreads leftover height across the page by growing only the gaps
-        // between sections/entries/bullets (font size stays as chosen). Used
-        // when the content is still short even at the maximum font scale.
-        const spreadSpacing = () => {
-            setSpace(1)
-            if (overflows() || fillRatio() >= TARGET_MIN) return
+            const setSpace = value =>
+                root.style.setProperty("--resume-space", value);
 
-            let lo = 1
-            let hi = MAX_SPACE
-            setSpace(hi)
-            if (!overflows() && fillRatio() <= TARGET) return // cap reached, still fits
+            const fillRatio = () => {
+                const last = pageEl.lastElementChild;
+                if (!last || !usableHeight) return 0;
 
-            for (let i = 0; i < 12; i++) {
-                const mid = (lo + hi) / 2
-                setSpace(mid)
-                if (!overflows() && fillRatio() <= TARGET) {
-                    lo = mid
-                } else {
-                    hi = mid
+                const used =
+                    last.getBoundingClientRect().bottom -
+                    pageEl.getBoundingClientRect().top -
+                    parseFloat(style.paddingTop);
+
+                return used / usableHeight;
+            };
+
+            const overflows = () =>
+                pageEl.scrollHeight > pageEl.clientHeight + 1;
+
+            const spreadSpacing = () => {
+                setSpace(1);
+
+                if (overflows() || fillRatio() >= MIN_TARGET) return;
+
+                let low = 1;
+                let high = MAX_SPACE;
+
+                setSpace(high);
+
+                if (!overflows() && fillRatio() <= TARGET) return;
+
+                for (let i = 0; i < 12; i++) {
+                    const mid = (low + high) / 2;
+                    setSpace(mid);
+
+                    if (!overflows() && fillRatio() <= TARGET) {
+                        low = mid;
+                    } else {
+                        high = mid;
+                    }
+                }
+
+                setSpace(low);
+            };
+
+            setScale(1);
+
+            if (
+                !overflows() &&
+                fillRatio() >= MIN_TARGET &&
+                fillRatio() <= 0.94
+            ) {
+                return;
+            }
+
+            let low = MIN_SCALE;
+            let high = MAX_SCALE;
+            let best = null;
+
+            const fitsAt = value => {
+                setScale(value);
+                return !overflows() && fillRatio() <= TARGET;
+            };
+
+            if (fitsAt(MAX_SCALE)) {
+                best = MAX_SCALE;
+            } else {
+                for (let i = 0; i < 12; i++) {
+                    const mid = (low + high) / 2;
+
+                    if (fitsAt(mid)) {
+                        best = mid;
+                        low = mid;
+                    } else {
+                        high = mid;
+                    }
                 }
             }
-            setSpace(lo)
-        }
 
-        // Content already close to the target at the default scale — keep it.
-        setScale(1)
-        if (!overflows() && fillRatio() >= TARGET_MIN && fillRatio() <= TARGET_MAX) return
-
-        // Otherwise find the largest scale in [MIN_SCALE, MAX_SCALE] whose
-        // content still fits within TARGET of the usable height. Content height grows
-        // monotonically with scale, so a binary search converges quickly.
-        const fitsAt = (value) => {
-            setScale(value)
-            return !overflows() && fillRatio() <= TARGET
-        }
-
-        let low = MIN_SCALE
-        let high = MAX_SCALE
-        let best = null
-
-        if (fitsAt(MAX_SCALE)) {
-            best = MAX_SCALE // very short content: enlarge to the cap, never beyond
-        } else {
-            for (let i = 0; i < 12; i++) {
-                const mid = (low + high) / 2
-                if (fitsAt(mid)) {
-                    best = mid
-                    low = mid
-                } else {
-                    high = mid
-                }
+            if (best !== null) {
+                setScale(best);
+                spreadSpacing();
+                return;
             }
+
+            let scale = 1;
+            setScale(scale);
+
+            while (overflows() && scale > MIN_SCALE) {
+                scale = Math.max(MIN_SCALE, scale - 0.02);
+                setScale(scale);
+            }
+
+            if (overflows()) {
+                pageEl.style.height = "auto";
+                pageEl.style.overflow = "visible";
+            }
+        });
+
+        return await page.pdf({
+            format: "A4",
+            printBackground: true,
+            margin: {
+                top: "0",
+                bottom: "0",
+                left: "0",
+                right: "0"
+            }
+        });
+    } finally {
+        if (browser) {
+            await browser.close();
         }
-
-        if (best !== null) {
-            setScale(best)
-            spreadSpacing()
-            return
-        }
-
-        // Nothing in range fits within the target (i.e. long content). Fall back
-        // to the largest scale that still fits on one page at all, down to
-        // the readable floor.
-        let scale = 1
-        setScale(scale)
-        while (overflows() && scale > MIN_SCALE) {
-            scale = Math.max(MIN_SCALE, scale - 0.02)
-            setScale(scale)
-        }
-
-        if (overflows()) {
-            // Genuinely too much content even at the readable floor —
-            // allow it to spill onto a second page instead of clipping it.
-            pageEl.style.height = "auto"
-            pageEl.style.overflow = "visible"
-        }
-    })
-
-    const pdfBuffer = await page.pdf({
-        format: "A4",
-        printBackground: true,
-        margin: { top: "0", bottom: "0", left: "0", right: "0" } // margins are handled inside the template itself
-    })
-
-    await browser.close()
-
-    return pdfBuffer
+    }
 }
 
 // Builds the fixed, professional A4 resume template around the AI's
