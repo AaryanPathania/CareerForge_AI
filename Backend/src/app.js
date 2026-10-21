@@ -16,10 +16,22 @@ const allowedOrigins = [
 app.use(
   cors({
     origin: function (origin, callback) {
+      // Allow requests without an Origin header, such as health checks.
       if (!origin || allowedOrigins.includes(origin)) {
         return callback(null, true);
       }
 
+      // Allow matching Vercel preview deployments for this project.
+      const isVercelPreview =
+        /^https:\/\/career-forge-[a-z0-9-]+-aarychee-7877s-projects\.vercel\.app$/.test(
+          origin
+        );
+
+      if (isVercelPreview) {
+        return callback(null, true);
+      }
+
+      console.error("[CORS BLOCKED] Origin:", origin);
       return callback(new Error("Origin not allowed by CORS"));
     },
     credentials: true,
@@ -30,8 +42,8 @@ app.use(
 app.use(express.json());
 app.use(cookieParser());
 
-// Temporary request logging for Render diagnostics.
-// This logs requests that reach Express, not passwords or request bodies.
+// Request logging for Render diagnostics.
+// Do not log passwords or request bodies.
 app.use((req, res, next) => {
   console.log(
     `[REQUEST] ${req.method} ${req.originalUrl} | CF-Ray: ${
